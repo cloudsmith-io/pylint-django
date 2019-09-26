@@ -2,7 +2,7 @@ from itertools import chain
 
 from astroid import (
     MANAGER, nodes, InferenceError, inference_tip,
-    UseInferenceDefault
+    UseInferenceDefault, AstroidImportError
 )
 from astroid.nodes import ClassDef, Attribute
 
@@ -93,7 +93,10 @@ def infer_key_classes(node, context=None):
                 module_name += '.models'
                 # ensure that module is loaded in astroid_cache, for cases when models is a package
                 if module_name not in MANAGER.astroid_cache:
-                    MANAGER.ast_from_module_name(module_name)
+                    try:
+                        MANAGER.ast_from_module_name(module_name)
+                    except AstroidImportError:
+                        pass
 
             # create list from dict_values, because it may be modified in a loop
             for module in list(MANAGER.astroid_cache.values()):
